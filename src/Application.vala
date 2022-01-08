@@ -40,6 +40,8 @@ public class Workspaces.Application : Gtk.Application {
 
     public signal void update_command (string command);
     public Application () {
+        Workspaces.Backend.KeyFileFactory.init ();
+
         Object (
             application_id: APP_ID,
             flags : ApplicationFlags.HANDLES_COMMAND_LINE
@@ -48,6 +50,7 @@ public class Workspaces.Application : Gtk.Application {
         settings = new GLib.Settings (this.application_id);
 
         data_dir = Path.build_filename (Environment.get_user_data_dir (), application_id);
+        print("Data dir %s", data_dir);
         ensure_dir (data_dir);
     }
 
@@ -169,7 +172,7 @@ public class Workspaces.Application : Gtk.Application {
     }
     protected override void activate () {
         var data_file = Path.build_filename (data_dir, "data.json");
-
+        info("Data %s", data_file);
         var store = new Workspaces.Models.Store (data_file);
         workspaces_controller = new Workspaces.Controllers.WorkspacesController (store);
 

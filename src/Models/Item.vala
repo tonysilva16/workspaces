@@ -42,14 +42,27 @@ public class Workspaces.Models.Item : Object {
     }
 
     public void execute_command () {
+        try {
+            
+            // Used to create new workspace
+            if(this.auto_start) {
+                Process.spawn_command_line_async ("dbus-send --session --dest=org.pantheon.gala --print-reply /org/pantheon/gala org.pantheon.gala.PerformAction int32:8");
+            }
+
+        } catch (SpawnError e) {
+            warning ("Error: %s\n", e.message);
+        } 
+
         var to_run_command = prepare_command ();
+
         if (is_flatpak () == true) {
             to_run_command = "flatpak-spawn --host " + to_run_command;
         }
+
         try {
             string[] ? argvp = null;
             Shell.parse_argv (to_run_command, out argvp);
-            info ("Command to launch: %s".printf (to_run_command));
+            print ("Command to launch: %s\n".printf (to_run_command));
             string[] env = Environ.get ();
 
             string cdir = GLib.Environment.get_home_dir ();
@@ -97,7 +110,22 @@ public class Workspaces.Models.Item : Object {
                 if (directory != null && directory.length > 0) {
                     d = " '" + directory + "'";
                 }
-                c = app_info.executable + d;
+
+                // Is this ok?
+                // @@ or %f (Visual studio flatpack) is present sometimes at the end of the command exec
+                // Remove it and replace with directory to open
+                var exec = app_info.executable;
+                var index = app_info.executable.index_of ("@@", 0);
+                if(index != -1) {
+                    exec = exec.substring (0, index);
+                }
+
+                index = app_info.executable.index_of ("%", 0);
+                if(index != -1) {
+                    exec = exec.substring (0, index);
+                }
+
+                c = exec + d;
                 break;
             } else {
                 return "";

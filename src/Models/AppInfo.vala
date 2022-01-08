@@ -21,14 +21,16 @@
 
 public class Workspaces.Models.AppInfo : Object {
     public string name { get; set; }
+    public string icon { get; set; }
     public string icon_name { get; set; }
     public string executable { get; set; }
 
-    public AppInfo (string name, string icon, string executable) {
+    public AppInfo (string name, string icon, string executable, string icon_name) {
         Object (
             name: name,
-            icon_name: icon,
-            executable: executable
-            );
+            icon: icon,
+            executable: executable,
+            icon_name: icon_name
+        );
     }
 }

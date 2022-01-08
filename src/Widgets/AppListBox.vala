@@ -53,23 +53,41 @@ public class Workspaces.Widgets.AppListBox : Gtk.ListBox {
     private string search_query = "";
     private Cancellable ? search_cancellable = null;
 
+    private const string APPLICATION_DIRS = "applications";
+
+    // See https://github.com/elementary/switchboard-plug-applications/blob/412bc4352d90163326fec047d2fd91f2e91b82d0/src/Startup/Controller.vala
+    // Implementation was copied from switchboard elementary os application
+    private static string[] get_application_files () {
+        string[] app_dirs = {};
+
+        var data_dirs = Environment.get_system_data_dirs ();
+        data_dirs += Environment.get_user_data_dir ();
+        foreach (unowned string data_dir in data_dirs) {
+            var app_dir = Path.build_filename (data_dir, APPLICATION_DIRS);
+            if (FileUtils.test (app_dir, FileTest.EXISTS)) {
+                app_dirs += app_dir;
+            }
+        }
+
+        if (app_dirs.length == 0) {
+            warning ("No application directories found");
+        }
+
+        var enumerator = new Workspaces.Backend.DesktopFileEnumerator (app_dirs);
+        return enumerator.get_desktop_files ();
+    }
+    
     static construct {
         apps = new Gee.ArrayList<Workspaces.Models.AppInfo> ();
 
-        var list = AppInfo.get_all ();
-        list.@foreach ((app) => {
-            if (app is DesktopAppInfo) {
-                var icon = app.get_icon ();
-                var icon_name = "applications-other";
-                if (icon != null) {
-                    icon_name = icon.to_string ();
-                }
-                if (app.get_executable () == null) {
-                    return;
-                }
-                apps.add (new Workspaces.Models.AppInfo (app.get_name (), icon_name, app.get_executable ()));
+        var app_infos = new Gee.ArrayList <Workspaces.Models.AppInfo?> ();
+        foreach (unowned string path in Workspaces.Widgets.AppListBox.get_application_files ()) {
+            var key_file = Workspaces.Backend.KeyFileFactory.get_or_create (path);
+            if (key_file.show) {
+                apps.add (key_file.create_app_info ());
             }
-        });
+
+        }
 
         max_index = apps.size - 1;
         apps.sort ((a, b) => strcmp (a.name, b.name));
@@ -103,6 +121,8 @@ public class Workspaces.Widgets.AppListBox : Gtk.ListBox {
     }
 
     public void add_app (Workspaces.Models.AppInfo app) {
+        //  print("Adding new app to list box with name: %s and exec: %s \n", app.name, app.executable);
+
         var row = new Workspaces.Widgets.AppRow (app);
         add (row);
 

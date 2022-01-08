@@ -114,7 +114,7 @@ public class Workspaces.Models.Store : Object {
     }
 
     private void load () {
-        debug ("loading store");
+        info ("loading store");
         Json.Parser parser = new Json.Parser ();
 
         try {

@@ -1,5 +1,9 @@
 # Listing files to compile
 sources = files (
+    'Backend/DesktopFileEnumerator.vala',
+    'Backend/KeyFile.vala',
+    'Backend/KeyFileFactory.vala',
+
     'Controllers/WorkspacesController.vala',
 
     'Dialogs/About.vala',
@@ -46,4 +50,5 @@ sources = files (
     'PreferencesWindow.vala',
     'Main.vala',
     'QuickLaunchWindow.vala',
+    'Utils.vala'
 )
