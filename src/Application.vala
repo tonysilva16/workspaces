@@ -178,6 +178,18 @@ public class Workspaces.Application : Gtk.Application {
 
         load_windows ();
 
+        /* Dark Mode support from user settings */
+        var granite_settings = Granite.Settings.get_default ();
+        var gtk_settings = Gtk.Settings.get_default ();
+
+        // Then, we check if the user's preference is for the dark style and set it if it is
+        gtk_settings.gtk_application_prefer_dark_theme = granite_settings.prefers_color_scheme == Granite.Settings.ColorScheme.DARK;
+
+        // Finally, we listen to changes in Granite.Settings and update our app if the user changes their preference
+        granite_settings.notify["prefers-color-scheme"].connect (() => {
+            gtk_settings.gtk_application_prefer_dark_theme = granite_settings.prefers_color_scheme == Granite.Settings.ColorScheme.DARK;
+        });
+
         var provider = new Gtk.CssProvider ();
         provider.load_from_resource ("com/github/devalien/workspaces/Application.css");
         Gtk.StyleContext.add_provider_for_screen (Gdk.Screen.get_default (), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);

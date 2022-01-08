@@ -129,11 +129,16 @@ public class Workspaces.QuickLaunchWindow : Gtk.Window {
         action_box.margin_start = 9;
         action_box.hexpand = true;
         action_box.pack_start (add_revealer, false, false, 0);
+
+        var header_bar = new Gtk.HeaderBar () {
+            show_close_button = true
+        };
+
         var main_box = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
+        //  main_box.add(search_headerbar);
         main_box.add (stack);
         main_box.add (new Gtk.Separator (Gtk.Orientation.HORIZONTAL));
         main_box.add (action_box);
-
         add (main_box);
 
         key_press_event.connect ((event) => {
@@ -179,6 +184,7 @@ public class Workspaces.QuickLaunchWindow : Gtk.Window {
         });
 
         set_titlebar (search_headerbar);
+        //  set_titlebar (header_bar);
         search_headerbar.get_style_context ().remove_class ("titlebar");
         search_headerbar.get_style_context ().add_class ("ql-entry");
         show_all ();
